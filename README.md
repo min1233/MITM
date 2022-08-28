@@ -39,3 +39,9 @@ $ cd ..</code>
 include /usr/local/lib  
 $ sudo ldconfig</code>  
 </pre>
+
+### Set Iptables
+Transfer from TCP 80 port on OUTPUT to netfilter_queue
+<pre>
+<code>$ sudo iptables -A OUTPUT -p tcp --dport 80 -j NFQUEUE</code>
+</pre>
