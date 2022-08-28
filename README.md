@@ -1,6 +1,6 @@
 # MITM Project
 
-## Prepared Install (Require to use pcap.h, pthread.h)
+## Prepared Install (Require to use netfilter_queue)
 ### Install libnfnetlink
 <pre>
 <code>$ wget https://www.netfilter.org/pub/libnfnetlink/libnfnetlink-1.0.2.tar.bz2  
