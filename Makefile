@@ -1,10 +1,10 @@
 all : mitm
 
 mitm : main.o
-	g++ -g -o ./mitm main.o -lpcap -lpthread
+	gcc -Wall -o ./mitm main.o -L /usr/local/lib -lnfnetlink -lnetfilter_queue
 
 main.o:
-	g++ -g -c -o main.o main.cpp
+	gcc -Wall -c -o main.o main.c
 
 clean:
 	rm -f ./mitm
