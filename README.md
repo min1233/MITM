@@ -43,17 +43,10 @@ $ sudo ldconfig</code>
 ### Set Iptables
 Transfer from TCP 80 port and 443 port on FORWARD to netfilter_queue
 <pre>
-<<<<<<< HEAD
 <code>$ sudo iptables -A FORWARD -p tcp --dport 80 -j NFQUEUE
 $ sudo iptables -A FORWARD -p tcp --dport 443 -j NFQUEUE
 $ sudo iptables -A FORWARD -p tcp --sport 80 -j NFQUEUE
 $ sudo iptables -A FORWARD -p tcp --sport 443 -j NFQUEUE</code>
-=======
-<code>$ sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -s 192.168.45.87 -j DROP
-$ sudo iptables -A OUTPUT -p tcp --dport 80 -j NFQUEUE
-$ sudo iptables -A OUTPUT -p tcp --dport 443 -j NFQUEUE
-$ sudo iptables -A INPUT -p tcp -s 192.168.45.116 -j NFQUEUE</code>
->>>>>>> c4f45fb390f5ca5c78d63d64cd7c1cd531989cf4
 </pre>
 
 ## ARP Spoofing
