@@ -43,5 +43,8 @@ $ sudo ldconfig</code>
 ### Set Iptables
 Transfer from TCP 80 port on OUTPUT to netfilter_queue
 <pre>
-<code>$ sudo iptables -A OUTPUT -p tcp --dport 80 -j NFQUEUE</code>
+<code>sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -s 192.168.45.87 -j DROP
+sudo iptables -A OUTPUT -p tcp --dport 80 -j NFQUEUE
+sudo iptables -A OUTPUT -p tcp --dport 443 -j NFQUEUE
+sudo iptables -A INPUT -p tcp -s 192.168.45.116 -j NFQUEUE</code>
 </pre>
